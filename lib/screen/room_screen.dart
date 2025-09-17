@@ -4,6 +4,8 @@ import '../screen/room_detail_screen.dart';
 import '../models/room.dart';
 import '../services/room_service.dart';
 import '../models/auth_service.dart';
+import '../services/booking_service.dart'; // เพิ่ม import นี้
+import '../models/booking.dart'; // เพิ่ม import นี้
 
 /// หน้าแสดงรายการห้องเรียน
 class RoomsScreen extends StatefulWidget {
@@ -21,6 +23,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
   String _searchQuery = '';
   RoomType? _selectedType;
   late RoomService _roomService;
+  late BookingService _bookingService;
 
   @override
   void initState() {
@@ -29,13 +32,17 @@ class _RoomsScreenState extends State<RoomsScreen> {
       _selectedType = null; // Filter by availability
     }
     _roomService = Provider.of<RoomService>(context, listen: false);
+    _bookingService = Provider.of<BookingService>(context, listen: false);
     _roomService.addListener(_loadRooms);
+    _bookingService.addListener(
+        _updateRoomAvailability); // เพิ่ม listener สำหรับ BookingService
     _loadRooms();
   }
 
   @override
   void dispose() {
     _roomService.removeListener(_loadRooms);
+    _bookingService.removeListener(_updateRoomAvailability); // ลบ listener
     super.dispose();
   }
 
@@ -77,10 +84,28 @@ class _RoomsScreenState extends State<RoomsScreen> {
 
     // Apply initial filter for 'available' rooms if set
     if (widget.initialFilter == 'available') {
-      filtered = filtered.where((room) => room.isAvailable).toList();
+      filtered =
+          filtered.where((room) => !_isRoomCurrentlyOccupied(room)).toList();
     }
 
     return filtered;
+  }
+
+  // ✅ Helper function to check if a room is currently occupied
+  bool _isRoomCurrentlyOccupied(Room room) {
+    final now = DateTime.now();
+    return _bookingService.bookings.any(
+      (booking) =>
+          booking.roomId == room.id &&
+          booking.status == BookingStatus.confirmed.name &&
+          now.isAfter(booking.startTime) &&
+          now.isBefore(booking.endTime),
+    );
+  }
+
+  // ✅ Callback for when booking service notifies changes
+  void _updateRoomAvailability() {
+    setState(() {});
   }
 
   @override
@@ -329,11 +354,13 @@ class _RoomsScreenState extends State<RoomsScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: room.isAvailable ? Colors.green : Colors.red,
+                      color: _isRoomCurrentlyOccupied(room)
+                          ? Colors.red
+                          : Colors.green,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      room.isAvailable ? 'ว่าง' : 'ไม่ว่าง',
+                      _isRoomCurrentlyOccupied(room) ? 'ไม่ว่าง' : 'ว่าง',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,

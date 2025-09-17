@@ -74,7 +74,7 @@ class RoomService extends ChangeNotifier {
     ),
     8: Room(
       id: 8,
-      name: 'C208 ชุมนุมฟิสิกส์นวัตกรรมพลังงาน',
+      name: 'C208 ห้องเรียนสีเขียว',
       capacity: 30,
       location: 'อาคาร C ชั้น 2',
       type: RoomType.classroom.name,
@@ -85,7 +85,7 @@ class RoomService extends ChangeNotifier {
     ),
     9: Room(
       id: 9,
-      name: 'C209 ห้องเรียนอาจารย์ปัทมาพร',
+      name: 'C209 ห้องปฎิบัติการวิทยาศาสตร์ 3',
       capacity: 30,
       location: 'อาคาร C ชั้น 2',
       type: RoomType.classroom.name,
@@ -96,7 +96,7 @@ class RoomService extends ChangeNotifier {
     ),
     11: Room(
       id: 11,
-      name: 'C211',
+      name: 'C211 ห้องเตรียมอุปกรณ์วิทยาศาสตร์ 2',
       capacity: 30,
       location: 'อาคาร C ชั้น 2',
       type: RoomType.computerLab.name,
@@ -107,7 +107,7 @@ class RoomService extends ChangeNotifier {
     ),
     12: Room(
       id: 12,
-      name: 'C212',
+      name: 'C212 ห้องปฎิบัติการวิทยาศาสตร์กายภาพ',
       capacity: 30,
       location: 'อาคาร C ชั้น 2',
       type: RoomType.classroom.name,
@@ -118,7 +118,7 @@ class RoomService extends ChangeNotifier {
     ),
     13: Room(
       id: 13,
-      name: 'C213',
+      name: 'C213 ศูนย์สื่อวิทยาศาตร์',
       capacity: 30,
       location: 'อาคาร C ชั้น 2',
       type: RoomType.meetingRoom.name,
@@ -140,7 +140,7 @@ class RoomService extends ChangeNotifier {
     ),
     16: Room(
       id: 16,
-      name: 'C216',
+      name: 'C216 ห้องปฎิบัติการดาราศาสตร์',
       capacity: 30,
       location: 'อาคาร C ชั้น 2',
       type: RoomType.classroom.name,
@@ -151,7 +151,7 @@ class RoomService extends ChangeNotifier {
     ),
     17: Room(
       id: 17,
-      name: 'C217 ห้องเตรียมอุปกรณ์วิทยาศาสตร์ 2',
+      name: 'C217 ห้องเตรียมอุปกรณ์วิทยาศาสตร์ 4',
       capacity: 30,
       location: 'อาคาร C ชั้น 2',
       type: RoomType.sciencelab.name,
@@ -173,7 +173,7 @@ class RoomService extends ChangeNotifier {
     ),
     19: Room(
       id: 19,
-      name: 'C219',
+      name: 'C219 ศูนย์ STEM',
       capacity: 30,
       location: 'อาคาร C ชั้น 2',
       type: RoomType.classroom.name,
@@ -184,7 +184,7 @@ class RoomService extends ChangeNotifier {
     ),
     20: Room(
       id: 20,
-      name: 'C220',
+      name: 'C220 ห้องเตรียมอุปกรณ์วิทยาศาสตร์ 5',
       capacity: 30,
       location: 'อาคาร C ชั้น 2',
       type: RoomType.classroom.name,
@@ -195,10 +195,21 @@ class RoomService extends ChangeNotifier {
     ),
     21: Room(
       id: 21,
-      name: 'C221',
+      name: 'C221 ห้องปฎิบัติการชีววิทยา 1',
       capacity: 30,
       location: 'อาคาร C ชั้น 2',
       type: RoomType.sciencelab.name,
+      amenities: ['ไมโครโฟน', 'โปรเจคเตอร์', 'ระบบเสียง'],
+      createdAt: DateTime.now().subtract(const Duration(days: 70)),
+      updatedAt: DateTime.now(),
+      isAvailable: true, // แก้ไขตรงนี้: กำหนดค่าเริ่มต้นเป็น true
+    ),
+    22: Room(
+      id: 22,
+      name: 'ห้องประชุม เปรื่องวิทยารักษ์',
+      capacity: 100,
+      location: 'อาคาร B ชั้น 2',
+      type: RoomType.lectureHall.name,
       amenities: ['ไมโครโฟน', 'โปรเจคเตอร์', 'ระบบเสียง'],
       createdAt: DateTime.now().subtract(const Duration(days: 70)),
       updatedAt: DateTime.now(),

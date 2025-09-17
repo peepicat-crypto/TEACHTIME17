@@ -3,11 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/room.dart';
-import '../services/room_service.dart';
-import '../services/user_service.dart';
+import '../services/booking_service.dart';
+import '../models/booking.dart';
 import '../models/room_booking_table.dart';
 import '../models/room_image_widget.dart';
-import '../models/room_image_helper.dart';
 import 'booking_form_screen_desktop.dart';
 
 class RoomDetailScreenResponsive extends StatefulWidget {
@@ -69,14 +68,11 @@ class _RoomDetailScreenResponsiveState
     );
   }
 
-  /// ส่วนเนื้อหาหลัก
   Widget _buildMainContent(bool isDesktop, bool isMobile) {
     if (isDesktop) {
-      // Layout สำหรับ Desktop: แสดงแบบ 2 คอลัมน์
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // คอลัมน์ซ้าย: ข้อมูลพื้นฐานและสิ่งอำนวยความสะดวก
           Expanded(
             flex: 2,
             child: Column(
@@ -88,7 +84,6 @@ class _RoomDetailScreenResponsiveState
             ),
           ),
           const SizedBox(width: 24),
-          // คอลัมน์ขวา: รูปภาพและปุ่มจอง
           Expanded(
             flex: 3,
             child: _buildImageAndBookingSection(isCompact: false),
@@ -96,13 +91,10 @@ class _RoomDetailScreenResponsiveState
         ],
       );
     } else {
-      // Layout สำหรับ Mobile/Tablet: แสดงแบบ 1 คอลัมน์
       return Column(
         children: [
-          // รูปภาพและปุ่มจอง (ด้านบน)
           _buildImageAndBookingSection(isCompact: isMobile),
           const SizedBox(height: 24),
-          // ข้อมูลพื้นฐานและสิ่งอำนวยความสะดวก
           _buildInfoSection(),
           const SizedBox(height: 16),
           _buildAmenitiesSection(),
@@ -111,7 +103,6 @@ class _RoomDetailScreenResponsiveState
     }
   }
 
-  /// ส่วนข้อมูลพื้นฐาน
   Widget _buildInfoSection() {
     return Card(
       elevation: 2,
@@ -137,7 +128,8 @@ class _RoomDetailScreenResponsiveState
             _buildInfoRow(
               'สถานะ',
               widget.room.isAvailable ? 'ว่าง' : 'ไม่ว่าง',
-              valueColor: widget.room.isAvailable ? Colors.green : Colors.red,
+              valueColor:
+                  _isRoomCurrentlyOccupied() ? Colors.red : Colors.green,
             ),
           ],
         ),
@@ -145,7 +137,6 @@ class _RoomDetailScreenResponsiveState
     );
   }
 
-  /// ส่วนสิ่งอำนวยความสะดวก
   Widget _buildAmenitiesSection() {
     return Card(
       elevation: 2,
@@ -186,19 +177,17 @@ class _RoomDetailScreenResponsiveState
     );
   }
 
-  /// ส่วนรูปภาพและปุ่มจอง
   Widget _buildImageAndBookingSection({required bool isCompact}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // รูปภาพ
         Card(
           elevation: 4,
-          margin: EdgeInsets.zero, // เอา margin ของ Card ออก
+          margin: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          clipBehavior: Clip.antiAlias, // ตัดส่วนที่เกินขอบมน
+          clipBehavior: Clip.antiAlias,
           child: Container(
             height: isCompact ? 200 : 300,
             decoration: BoxDecoration(
@@ -207,17 +196,15 @@ class _RoomDetailScreenResponsiveState
             child: RoomImageWidget(
               roomId: widget.room.id,
               roomName: widget.room.name,
-              fit: BoxFit.cover, // **สำคัญ: กำหนดให้รูปภาพเต็มพื้นที่**
+              fit: BoxFit.cover,
               enableFullScreen: true,
               showExpandIcon: true,
-              // **เพิ่ม width และ height เพื่อให้ Widget ภายในขยายตาม**
               width: double.infinity,
               height: double.infinity,
             ),
           ),
         ),
         const SizedBox(height: 16),
-        // ไอคอนจองและปุ่มจอง
         Card(
           elevation: 2,
           shape: RoundedRectangleBorder(
@@ -246,7 +233,6 @@ class _RoomDetailScreenResponsiveState
     );
   }
 
-  /// แถวแสดงสถานะห้อง
   Widget _buildStatusRow() {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -254,25 +240,24 @@ class _RoomDetailScreenResponsiveState
         Icon(
           Icons.event_available,
           size: 28,
-          color: widget.room.isAvailable ? Colors.green : Colors.red,
+          color: _isRoomCurrentlyOccupied() ? Colors.red : Colors.green,
         ),
         const SizedBox(width: 8),
         Text(
-          widget.room.isAvailable ? 'ว่าง' : 'ไม่ว่าง',
+          _isRoomCurrentlyOccupied() ? 'ไม่ว่าง' : 'ว่าง',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: widget.room.isAvailable ? Colors.green : Colors.red,
+            color: _isRoomCurrentlyOccupied() ? Colors.red : Colors.green,
           ),
         ),
       ],
     );
   }
 
-  /// ปุ่มจองห้อง
   Widget _buildBookingButton() {
     return ElevatedButton.icon(
-      onPressed: widget.room.isAvailable
+      onPressed: !_isRoomCurrentlyOccupied()
           ? () {
               Navigator.push(
                 context,
@@ -297,7 +282,6 @@ class _RoomDetailScreenResponsiveState
     );
   }
 
-  /// ส่วนตารางการจอง
   Widget _buildBookingSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,7 +307,6 @@ class _RoomDetailScreenResponsiveState
     );
   }
 
-  /// สร้างแถวข้อมูล
   Widget _buildInfoRow(String label, String value, {Color? valueColor}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -354,7 +337,6 @@ class _RoomDetailScreenResponsiveState
     );
   }
 
-  /// สร้าง Chip สำหรับสิ่งอำนวยความสะดวก
   Widget _buildAmenityChip(String amenity) {
     return Chip(
       label: Text(
@@ -367,7 +349,6 @@ class _RoomDetailScreenResponsiveState
     );
   }
 
-  /// แปลงประเภทห้องเป็นข้อความภาษาไทย
   String _getRoomTypeText(String type) {
     switch (type) {
       case 'classroom':
@@ -383,5 +364,19 @@ class _RoomDetailScreenResponsiveState
       default:
         return type;
     }
+  }
+
+  /// --- ใช้ _isRoomCurrentlyOccupied() ภายใน class ---
+  bool _isRoomCurrentlyOccupied() {
+    final now = DateTime.now();
+    final bookingService = Provider.of<BookingService>(context, listen: false);
+    final roomBookings = bookingService.bookings.where(
+      (booking) =>
+          booking.roomId == widget.room.id &&
+          booking.status == BookingStatus.confirmed.name &&
+          now.isAfter(booking.startTime) &&
+          now.isBefore(booking.endTime),
+    );
+    return roomBookings.isNotEmpty;
   }
 }
